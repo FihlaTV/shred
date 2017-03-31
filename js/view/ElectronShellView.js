@@ -140,10 +140,9 @@ define( function( require ) {
     } );
 
     // @private (a11y) - a map of drop locations for particles that are being moved into the atom with a keyboard
-    this.optionLocationMap = {};
-    this.optionLocationMap[ centerOption.accessibleId ] = new Vector2( 0, 0 );
-    this.optionLocationMap[ innerRing.accessibleId ] = new Vector2( atom.innerElectronShellRadius, 0 );
-    this.optionLocationMap[ outerRing.accessibleId ] = new Vector2( atom.outerElectronShellRadius, 0 );
+    centerOption.particleDropLocation = new Vector2( 0, 0 );
+    innerRing.particleDropLocation = new Vector2( atom.innerElectronShellRadius, 0 );
+    outerRing.particleDropLocation = new Vector2( atom.outerElectronShellRadius, 0 );
 
     // a11y - set the selectProperty when the arrow keys change the html select menu's value.
     var optionNodes = [ centerOption, innerRing, outerRing ];
@@ -205,7 +204,7 @@ define( function( require ) {
 
       // Change the highlight to match the placement option
       var optionHighlightedListener = function( node ) {
-        particle.positionProperty.set( this.optionLocationMap[ node.accessibleId ] );
+        particle.positionProperty.set( node.particleDropLocation );
       };
       this.optionHighlightedEmitter.addListener( optionHighlightedListener );
 
