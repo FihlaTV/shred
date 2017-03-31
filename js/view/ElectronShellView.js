@@ -16,6 +16,8 @@ define( function( require ) {
   var Circle = require( 'SCENERY/nodes/Circle' );
   var Node = require( 'SCENERY/nodes/Node' );
   var Property = require( 'AXON/Property' );
+  var Emitter = require( 'AXON/Emitter' );
+  var Vector2 = require( 'DOT/Vector2' );
   var Input = require( 'SCENERY/input/Input' );
 
   // constants
@@ -45,6 +47,14 @@ define( function( require ) {
       ariaRole: 'listbox',
       focusable: true
     } );
+
+    // @private
+    this.atom = atom;
+    this.modelViewTransform = modelViewTransform;
+
+    // @private (a11y) - emits an event when a placement option has been selected
+    this.optionSelectedEmitter = new Emitter();
+    this.optionHighlightedEmitter = new Emitter();
 
     var outerRing = new Circle( modelViewTransform.modelToViewDeltaX( atom.outerElectronShellRadius ), {
       stroke: 'blue',
@@ -104,10 +114,11 @@ define( function( require ) {
       translation: modelViewTransform.modelToViewPosition( { x: 0, y: 0 } )
     } );
 
-    var selectValueProperty = new Property( 'none' );
+    // @private
+    this.selectValueProperty = new Property( 'none' );
 
     // Link the property's value to change the focus highlight outlining the different particle placement possibilities.
-    selectValueProperty.lazyLink( function( newValue ) {
+    this.selectValueProperty.lazyLink( function( newValue ) {
       switch( newValue ) {
         case ( centerOption.accessibleId ):
           self.setFocusHighlight( electronOuterFocusHighlight );
@@ -123,6 +134,10 @@ define( function( require ) {
       }
     } );
 
+    centerOption.choosingLocation = new Vector2( 0, 0 );
+    innerRing.choosingLocation = new Vector2( atom.innerElectronShellRadius, 0 );
+    outerRing.choosingLocation = new Vector2( atom.outerElectronShellRadius, 0 );
+
     // a11y - set the selectProperty when the arrow keys change the html select menu's value.
     var optionNodes = [ centerOption, innerRing, outerRing ];
     var currentIndex = 0;
@@ -135,10 +150,14 @@ define( function( require ) {
           currentIndex = currentIndex - 1;
           if ( currentIndex < 0 ) { currentIndex = optionNodes.length - 1; }
         }
+        else if ( event.keyCode === Input.KEY_ENTER || event.keyCode === Input.KEY_SPACE ) {
+          self.optionSelectedEmitter.emit();
+        }
 
         var nextElementId = optionNodes[ currentIndex ].accessibleId;
         self.setAccessibleAttribute( 'aria-activedescendant', nextElementId );
-        selectValueProperty.set( nextElementId );
+        self.selectValueProperty.set( nextElementId );
+        self.optionHighlightedEmitter.emit1( optionNodes[ currentIndex ] );
       }
     } );
 
@@ -158,5 +177,24 @@ define( function( require ) {
   shred.register( 'ElectronShellView', ElectronShellView );
 
   // Inherit from Node.
-  return inherit( Node, ElectronShellView );
+  return inherit( Node, ElectronShellView, {
+
+    handleAccessibleDrag: function( particle ) {
+
+      // focus the select option
+      this.focus();
+
+      this.optionHighlightedEmitter.addListener( function( node ) {
+        console.log( node.choosingLocation );
+        particle.positionProperty.set( node.choosingLocation );
+      } );
+
+      // when an option is selected, place the particle
+      this.optionSelectedEmitter.addListener( function() {
+        particle.userControlledProperty.set( false );
+      } );
+
+      // TODO: remove the listeners
+    }
+  } );
 } );

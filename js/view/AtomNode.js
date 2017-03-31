@@ -85,18 +85,18 @@ define( function( require ) {
       particleAtom.protonCountProperty.link( listener );
     }
 
-    // Add the electron shells and cloud.
-    var electronShell = new ElectronShellView( particleAtom, modelViewTransform, {
+    // @public (a11y) - Add the electron shells and cloud.
+    this.electronShell = new ElectronShellView( particleAtom, modelViewTransform, {
       tandem: options.tandem.createTandem( 'electronShell' )
     } );
-    this.addChild( electronShell );
+    this.addChild( this.electronShell );
     var electronCloud = new ElectronCloudView( particleAtom, modelViewTransform, {
       tandem: options.tandem.createTandem( 'electronCloud' )
     } );
     this.addChild( electronCloud );
 
     var updateElectronShellDepictionVisibility = function( depiction ) {
-      electronShell.visible = depiction === 'orbits';
+      self.electronShell.visible = depiction === 'orbits';
       electronCloud.visible = depiction === 'cloud';
     };
     options.electronShellDepictionProperty.link( updateElectronShellDepictionVisibility );
