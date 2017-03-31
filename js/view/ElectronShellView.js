@@ -56,9 +56,9 @@ define( function( require ) {
     this.optionSelectedEmitter = new Emitter();
     this.optionHighlightedEmitter = new Emitter();
 
-    atom.particleCountProperty.link( function( newParticleCount){
-        self.focusable = newParticleCount > 0;
-    });
+    atom.particleCountProperty.link( function( newParticleCount ) {
+      self.focusable = newParticleCount > 0;
+    } );
 
     var outerRing = new Circle( modelViewTransform.modelToViewDeltaX( atom.outerElectronShellRadius ), {
       stroke: 'blue',
@@ -125,7 +125,7 @@ define( function( require ) {
     this.selectValueProperty.link( function( newValue ) {
       switch( newValue ) {
         case ( centerOption.accessibleId ):
-          self.setFocusHighlight( nucleusFocusHighlight  );
+          self.setFocusHighlight( nucleusFocusHighlight );
           break;
         case ( innerRing.accessibleId ):
           self.setFocusHighlight( electronInnerFocusHighlight );
@@ -183,23 +183,41 @@ define( function( require ) {
   // Inherit from Node.
   return inherit( Node, ElectronShellView, {
 
-    handleAccessibleDrag: function( particle ) {
+    handleAccessibleDrag: function( particle, bucketFront ) {
+      var self = this;
 
       // focus the select option
       this.focusable = true;
       this.focus();
 
-      this.optionHighlightedEmitter.addListener( function( node ) {
-        console.log( node.choosingLocation );
+      // Change the highlight to match the placement option
+      var optionHighlightedListener = function( node ) {
         particle.positionProperty.set( node.choosingLocation );
-      } );
+      };
+      this.optionHighlightedEmitter.addListener( optionHighlightedListener );
 
       // when an option is selected, place the particle
-      this.optionSelectedEmitter.addListener( function() {
-        particle.userControlledProperty.set( false );
-      } );
+      var optionSelectedListener = function() {
 
-      // TODO: remove the listeners
+        // Remove listeners so they don't get called on the next particle being placed
+        self.optionSelectedEmitter.removeListener( optionSelectedListener );
+        self.optionHighlightedEmitter.removeListener( optionHighlightedListener );
+
+        // TODO: reset the currentIndex
+        particle.userControlledProperty.set( false );
+
+        // Remove focusability if there are no particles
+        // if ( self.atom.particleCountProperty.get() === 0 ) {
+        // }
+
+        // TODO: move this up to the if statement when we decide to implement removal of particles from the particleAtom.
+        self.focusable = false;
+
+        // put focus back onto the bucketFront
+        // TODO: Ensure that this is called after all key events meant for the particleAtom are finished. See https://github.com/phetsims/a11y-research/26
+        setTimeout( function() { bucketFront.focus(); }, 100 );
+      };
+      this.optionSelectedEmitter.addListener( optionSelectedListener );
     }
   } );
 } );
