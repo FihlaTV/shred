@@ -144,24 +144,37 @@ define( function( require ) {
 
     // a11y - set the selectProperty when the arrow keys change the html select menu's value.
     var optionNodes = [ centerOption, innerRing, outerRing ];
-    var currentIndex = 0;
+
+    // @private (a11y)
+    this.currentOptionIndex = 0;
     this.addAccessibleInputListener( {
       keydown: function( event ) {
-        if ( event.keyCode === Input.KEY_DOWN_ARROW || event.keyCode === Input.KEY_RIGHT_ARROW ) {
-          currentIndex = ( currentIndex + 1 ) % optionNodes.length;
+        var isDownRight = event.keyCode === Input.KEY_DOWN_ARROW || event.keyCode === Input.KEY_RIGHT_ARROW;
+        var isUpLeft = event.keyCode === Input.KEY_UP_ARROW || event.keyCode === Input.KEY_LEFT_ARROW;
+
+        // if event was an arrow key
+        if ( isDownRight || isUpLeft ) {
+          if ( isDownRight ) {
+            self.currentOptionIndex = ( self.currentOptionIndex + 1 ) % optionNodes.length;
+          }
+          else if ( isUpLeft ) {
+            self.currentOptionIndex = self.currentOptionIndex - 1;
+            if ( self.currentOptionIndex < 0 ) { self.currentOptionIndex = optionNodes.length - 1; }
+          }
+
+          // Update highlighting
+          var nextElementId = optionNodes[ self.currentOptionIndex ].accessibleId;
+          self.setAccessibleAttribute( 'aria-activedescendant', nextElementId );
+          self.selectValueProperty.set( nextElementId );
+          self.optionHighlightedEmitter.emit1( optionNodes[ self.currentOptionIndex ] );
         }
-        else if ( event.keyCode === Input.KEY_UP_ARROW || event.keyCode === Input.KEY_LEFT_ARROW ) {
-          currentIndex = currentIndex - 1;
-          if ( currentIndex < 0 ) { currentIndex = optionNodes.length - 1; }
-        }
-        else if ( event.keyCode === Input.KEY_ENTER || event.keyCode === Input.KEY_SPACE ) {
+
+        // If key represents 'place' or 'end' condition
+        else if ( event.keyCode === Input.KEY_ENTER || event.keyCode === Input.KEY_SPACE ||
+                  event.keyCode === Input.KEY_TAB || event.keyCode === Input.KEY_ESCAPE ) {
           self.optionSelectedEmitter.emit();
         }
 
-        var nextElementId = optionNodes[ currentIndex ].accessibleId;
-        self.setAccessibleAttribute( 'aria-activedescendant', nextElementId );
-        self.selectValueProperty.set( nextElementId );
-        self.optionHighlightedEmitter.emit1( optionNodes[ currentIndex ] );
       }
     } );
 
@@ -203,7 +216,8 @@ define( function( require ) {
         self.optionSelectedEmitter.removeListener( optionSelectedListener );
         self.optionHighlightedEmitter.removeListener( optionHighlightedListener );
 
-        // TODO: reset the currentIndex
+        // Reset the option index
+        self.currentOptionIndex = 0;
         particle.userControlledProperty.set( false );
 
         // Remove focusability if there are no particles
