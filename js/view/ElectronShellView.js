@@ -172,7 +172,7 @@ define( function( require ) {
         // If key represents 'place' or 'end' condition
         else if ( event.keyCode === Input.KEY_ENTER || event.keyCode === Input.KEY_SPACE ||
                   event.keyCode === Input.KEY_TAB || event.keyCode === Input.KEY_ESCAPE ) {
-          self.optionSelectedEmitter.emit();
+          self.optionSelectedEmitter.emit1( event.keyCode );
         }
 
       }
@@ -210,7 +210,7 @@ define( function( require ) {
       this.optionHighlightedEmitter.addListener( optionHighlightedListener );
 
       // when an option is selected, place the particle
-      var optionSelectedListener = function() {
+      var optionSelectedListener = function( keyCode ) {
 
         // Remove listeners so they don't get called on the next particle being placed
         self.optionSelectedEmitter.removeListener( optionSelectedListener );
@@ -227,9 +227,14 @@ define( function( require ) {
         // TODO: move this up to the if statement when we decide to implement removal of particles from the particleAtom.
         self.focusable = false;
 
-        // put focus back onto the bucketFront
-        // TODO: Ensure that this is called after all key events meant for the particleAtom are finished. See https://github.com/phetsims/a11y-research/26
-        setTimeout( function() { bucketFront.focus(); }, 100 );
+
+        // If tab was pressed then don't focus on the bucketFront again. Instead go to the next tab navigable element
+        if (keyCode !== Input.KEY_TAB){
+
+          // TODO: Ensure that this is called after all key events meant for the particleAtom are finished. See https://github.com/phetsims/a11y-research/26
+          // put focus back onto the bucketFront
+          setTimeout( function() { bucketFront.focus(); }, 100 );
+        }
       };
       this.optionSelectedEmitter.addListener( optionSelectedListener );
     }
