@@ -56,6 +56,10 @@ define( function( require ) {
     this.optionSelectedEmitter = new Emitter();
     this.optionHighlightedEmitter = new Emitter();
 
+    atom.particleCountProperty.link( function( newParticleCount){
+        self.focusable = newParticleCount > 0;
+    });
+
     var outerRing = new Circle( modelViewTransform.modelToViewDeltaX( atom.outerElectronShellRadius ), {
       stroke: 'blue',
       lineWidth: 1.5,
@@ -115,10 +119,10 @@ define( function( require ) {
     } );
 
     // @private
-    this.selectValueProperty = new Property( 'none' );
+    this.selectValueProperty = new Property( centerOption.accessibleId );
 
     // Link the property's value to change the focus highlight outlining the different particle placement possibilities.
-    this.selectValueProperty.lazyLink( function( newValue ) {
+    this.selectValueProperty.link( function( newValue ) {
       switch( newValue ) {
         case ( centerOption.accessibleId ):
           self.setFocusHighlight( nucleusFocusHighlight  );
@@ -182,6 +186,7 @@ define( function( require ) {
     handleAccessibleDrag: function( particle ) {
 
       // focus the select option
+      this.focusable = true;
       this.focus();
 
       this.optionHighlightedEmitter.addListener( function( node ) {
