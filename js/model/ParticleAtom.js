@@ -48,9 +48,6 @@ define( function( require ) {
 
     this.nucleonRadius = options.nucleonRadius; // @private
 
-    // @public (read-only) - radius of the nucleus in view coordinates, which is rougly pixels
-    this.nucleusRadius = 0;
-
     // @public
     this.positionProperty = new Property( Vector2.ZERO, {
       useDeepEquality: true,
@@ -138,6 +135,9 @@ define( function( require ) {
         phetioValueType: TNumber( { type: 'Integer' } )
       }
     );
+
+    // @public (a11y) - radius of the nucleus in view coordinates, which is rougly pixels
+    this.nucleusRadiusProperty = new Property( this.nucleonRadius );
 
     // Make shell radii publicly accessible.
     this.innerElectronShellRadius = options.innerElectronShellRadius; // @public
@@ -570,7 +570,7 @@ define( function( require ) {
         nucleusRadius = placementRadius + this.nucleonRadius;
       }
 
-      this.nucleusRadius = nucleusRadius;
+      this.nucleusRadiusProperty.set( nucleusRadius );
     }
   } );
 } );

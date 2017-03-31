@@ -56,6 +56,7 @@ define( function( require ) {
     this.optionSelectedEmitter = new Emitter();
     this.optionHighlightedEmitter = new Emitter();
 
+    // a11y - when there are no particles in the atom, the shells should not be focusable
     atom.particleCountProperty.link( function( newParticleCount ) {
       self.focusable = newParticleCount > 0;
     } );
@@ -97,32 +98,32 @@ define( function( require ) {
       accessibleLabel: 'Nucleus'
     } );
 
-    // a11y - to focus around the actual nucleus, will change in size when the particles in the nucleus change
+    // a11y - a focus highlight around the nucleus, will change in size when the particles in the nucleus change
     var nucleusFocusHighlight = new Circle( atom.nucleusRadius, {
       lineWidth: 2,
       stroke: 'red',
       translation: modelViewTransform.modelToViewPosition( { x: 0, y: 0 } )
     } );
 
-    // a11y - to focus around the outer shell
+    // a11y - a focus highlight for the outer shell
     var electronOuterFocusHighlight = new Circle( atom.outerElectronShellRadius, {
       lineWidth: 2,
       stroke: 'red',
       translation: modelViewTransform.modelToViewPosition( { x: 0, y: 0 } )
     } );
 
-    // a11y - to focus around the inner shell
+    // a11y - a focus highlight for the inner shell
     var electronInnerFocusHighlight = new Circle( atom.innerElectronShellRadius, {
       lineWidth: 2,
       stroke: 'red',
       translation: modelViewTransform.modelToViewPosition( { x: 0, y: 0 } )
     } );
 
-    // @private
-    this.selectValueProperty = new Property( centerOption.accessibleId );
+    // @private (a11y) - the shell/nucleus option that is currently highlighted while placing a particle in the atom
+    this.highlightedOptionProperty = new Property( centerOption.accessibleId );
 
     // Link the property's value to change the focus highlight outlining the different particle placement possibilities.
-    this.selectValueProperty.link( function( newValue ) {
+    this.highlightedOptionProperty.link( function( newValue ) {
       switch( newValue ) {
         case ( centerOption.accessibleId ):
           self.setFocusHighlight( nucleusFocusHighlight );
@@ -134,13 +135,15 @@ define( function( require ) {
           self.setFocusHighlight( electronOuterFocusHighlight );
           break;
         default:
-          throw new Error( 'You tried to set the selectValueProperty to an unsupported value.' );
+          throw new Error( 'You tried to set the highlightedOptionProperty to an unsupported value.' );
       }
     } );
 
-    centerOption.choosingLocation = new Vector2( 0, 0 );
-    innerRing.choosingLocation = new Vector2( atom.innerElectronShellRadius, 0 );
-    outerRing.choosingLocation = new Vector2( atom.outerElectronShellRadius, 0 );
+    // @private (a11y) - a map of drop locations for particles that are being moved into the atom with a keyboard
+    this.optionLocationMap = {};
+    this.optionLocationMap[ centerOption.accessibleId ] = new Vector2( 0, 0 );
+    this.optionLocationMap[ innerRing.accessibleId ] = new Vector2( atom.innerElectronShellRadius, 0 );
+    this.optionLocationMap[ outerRing.accessibleId ] = new Vector2( atom.outerElectronShellRadius, 0 );
 
     // a11y - set the selectProperty when the arrow keys change the html select menu's value.
     var optionNodes = [ centerOption, innerRing, outerRing ];
@@ -165,7 +168,7 @@ define( function( require ) {
           // Update highlighting
           var nextElementId = optionNodes[ self.currentOptionIndex ].accessibleId;
           self.setAccessibleAttribute( 'aria-activedescendant', nextElementId );
-          self.selectValueProperty.set( nextElementId );
+          self.highlightedOptionProperty.set( nextElementId );
           self.optionHighlightedEmitter.emit1( optionNodes[ self.currentOptionIndex ] );
         }
 
@@ -181,13 +184,10 @@ define( function( require ) {
     // add each node to the view
     optionNodes.forEach( function( node ) { self.addChild( node ); } );
 
-    // whenever a nucleon is added or removed, change the highlight radius
-    Property.multilink( [ atom.protonCountProperty, atom.neutronCountProperty ], function( protonCount, neutronCount ) {
-
-      // TODO: Is there another way to link to the changing nucleus configuration
-      atom.reconfigureNucleus();
-      var radiusOffset = atom.nucleusRadius === 0 ? 0 : 4;
-      nucleusFocusHighlight.radius = atom.nucleusRadius + radiusOffset;
+    // when the nucleus radius changes, redraw the nucleus focus highlight
+    atom.nucleusRadiusProperty.link( function( radius ) {
+      var radiusOffset = radius === 0 ? 0 : 4;
+      nucleusFocusHighlight.radius = radius + radiusOffset;
     } );
   }
 
@@ -205,7 +205,7 @@ define( function( require ) {
 
       // Change the highlight to match the placement option
       var optionHighlightedListener = function( node ) {
-        particle.positionProperty.set( node.choosingLocation );
+        particle.positionProperty.set( this.optionLocationMap[ node.accessibleId ] );
       };
       this.optionHighlightedEmitter.addListener( optionHighlightedListener );
 
@@ -220,16 +220,14 @@ define( function( require ) {
         self.currentOptionIndex = 0;
         particle.userControlledProperty.set( false );
 
+        // TODO: move this into the if statement when we decide to implement removal of particles from the particleAtom.
         // Remove focusability if there are no particles
         // if ( self.atom.particleCountProperty.get() === 0 ) {
         // }
-
-        // TODO: move this up to the if statement when we decide to implement removal of particles from the particleAtom.
         self.focusable = false;
 
-
         // If tab was pressed then don't focus on the bucketFront again. Instead go to the next tab navigable element
-        if (keyCode !== Input.KEY_TAB){
+        if ( keyCode !== Input.KEY_TAB ){
 
           // TODO: Ensure that this is called after all key events meant for the particleAtom are finished. See https://github.com/phetsims/a11y-research/26
           // put focus back onto the bucketFront
