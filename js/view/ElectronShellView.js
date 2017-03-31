@@ -121,13 +121,13 @@ define( function( require ) {
     this.selectValueProperty.lazyLink( function( newValue ) {
       switch( newValue ) {
         case ( centerOption.accessibleId ):
-          self.setFocusHighlight( electronOuterFocusHighlight );
+          self.setFocusHighlight( nucleusFocusHighlight  );
           break;
         case ( innerRing.accessibleId ):
           self.setFocusHighlight( electronInnerFocusHighlight );
           break;
         case ( outerRing.accessibleId ):
-          self.setFocusHighlight( nucleusFocusHighlight );
+          self.setFocusHighlight( electronOuterFocusHighlight );
           break;
         default:
           throw new Error( 'You tried to set the selectValueProperty to an unsupported value.' );
