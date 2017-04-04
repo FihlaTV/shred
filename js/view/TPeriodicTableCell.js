@@ -24,7 +24,7 @@ define( function( require ) {
       periodicTableCell.endedCallbacksForPressedEmitter,
       'user',
       phetioID,
-      TPeriodicTableCell,
+      this.constructor,
       'fired'
     );
   };
