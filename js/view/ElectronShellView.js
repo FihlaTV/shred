@@ -208,7 +208,7 @@ define( function( require ) {
 
       // Change the highlight to match the placement option
       var optionHighlightedListener = function( node ) {
-        particle.positionProperty.set( node.particleDropLocation );
+        particle.destinationProperty.set( node.particleDropLocation );
       };
       this.optionHighlightedEmitter.addListener( optionHighlightedListener );
 
@@ -220,6 +220,9 @@ define( function( require ) {
         self.optionHighlightedEmitter.removeListener( optionHighlightedListener );
 
         particle.userControlledProperty.set( false );
+
+        // This is to help animate accessible drag
+        particle.isAccessibleControlled = false;
 
         // TODO: move this into the if statement when we decide to implement removal of particles from the particleAtom.
         // Remove focusability if there are no particles

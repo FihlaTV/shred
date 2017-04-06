@@ -100,7 +100,7 @@ define( function( require ) {
      * @public
      */
     step: function( dt ) {
-      if ( !this.userControlledProperty.get() ) {
+      if ( !this.userControlledProperty.get() || this.isAccessibleControlled) {
         var position = this.positionProperty.get();
         var destination = this.destinationProperty.get();
         var velocity = this.animationVelocityProperty.get();
