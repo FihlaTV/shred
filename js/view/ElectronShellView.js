@@ -223,9 +223,9 @@ define( function( require ) {
 
         // TODO: move this into the if statement when we decide to implement removal of particles from the particleAtom.
         // Remove focusability if there are no particles
-        // if ( self.atom.particleCountProperty.get() === 0 ) {
-        // }
-        self.focusable = false;
+        if ( self.atom.particleCountProperty.get() === 0 ) {
+          self.focusable = false;
+        }
 
         // If tab was pressed then don't focus on the bucketFront again. Instead go to the next tab navigable element
         if ( keyCode !== Input.KEY_TAB ) {

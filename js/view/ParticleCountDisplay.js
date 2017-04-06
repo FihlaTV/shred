@@ -114,7 +114,10 @@ define( function( require ) {
         array.push( new ParticleNode( particleType, radius, {
           x: startX + newIndex * interParticleSpacing,
           y: startY,
-          tandem: groupTandem.createNextTandem()
+          tandem: groupTandem.createNextTandem(),
+
+          // a11y - make sure that particle nodes in the count display are not accessible
+          accessibleHidden: true
         } ) );
       }
       particleLayer.addChild( array[ newIndex ] );
