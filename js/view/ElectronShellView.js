@@ -219,12 +219,16 @@ define( function( require ) {
         self.optionSelectedEmitter.removeListener( optionSelectedListener );
         self.optionHighlightedEmitter.removeListener( optionHighlightedListener );
 
+
+        // Put the particle back in the bucket if it isn't purposefully dropped.
+        if ( keyCode === Input.KEY_TAB || keyCode === Input.KEY_ESCAPE ){
+          bucketFront.bucket.addParticleFirstOpen(particle);
+        }
         particle.userControlledProperty.set( false );
 
         // This is to help animate accessible drag
         particle.isAccessibleControlled = false;
 
-        // TODO: move this into the if statement when we decide to implement removal of particles from the particleAtom.
         // Remove focusability if there are no particles
         if ( self.atom.particleCountProperty.get() === 0 ) {
           self.focusable = false;
