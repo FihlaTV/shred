@@ -26,12 +26,18 @@ define( function( require ) {
   // constants
   var DEFAULT_PARTICLE_VELOCITY = 200; // Basically in pixels/sec.
 
+  // global count that will increase with the number of Particle instances
+  var instanceCount = 1;
+
   /**
    * @param {string} type
    * @param {Object} options
    * @constructor
    */
   function Particle( type, options ) {
+
+    // update the counter tracking the number of particle instances
+    this.id = instanceCount++;
 
     options = _.extend( {
       tandem: Tandem.tandemRequired(),
