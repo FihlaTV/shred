@@ -144,8 +144,8 @@ define( function( require ) {
     innerRing.particleDropLocation = new Vector2( atom.innerElectronShellRadius, 0 );
     outerRing.particleDropLocation = new Vector2( atom.outerElectronShellRadius, 0 );
 
-    // a11y - set the selectProperty when the arrow keys change the html select menu's value.
-    var optionNodes = [ centerOption, innerRing, outerRing ];
+    // @private a11y - set the selectProperty when the arrow keys change the html select menu's value.
+    this.optionNodes = [ centerOption, innerRing, outerRing ];
 
     // @private (a11y)
     this.currentOptionIndex = 0;
@@ -157,18 +157,22 @@ define( function( require ) {
         // if event was an arrow key
         if ( isDownRight || isUpLeft ) {
           if ( isDownRight ) {
-            self.currentOptionIndex = ( self.currentOptionIndex + 1 ) % optionNodes.length;
+            self.currentOptionIndex = ( self.currentOptionIndex + 1 ) % self.optionNodes.length;
           }
           else if ( isUpLeft ) {
             self.currentOptionIndex = self.currentOptionIndex - 1;
-            if ( self.currentOptionIndex < 0 ) { self.currentOptionIndex = optionNodes.length - 1; }
+            if ( self.currentOptionIndex < 0 ) { self.currentOptionIndex = self.optionNodes.length - 1; }
           }
 
           // Update highlighting
-          var nextElementId = optionNodes[ self.currentOptionIndex ].accessibleId;
+          var nextElementId = self.optionNodes[ self.currentOptionIndex ].accessibleId;
           self.setAccessibleAttribute( 'aria-activedescendant', nextElementId );
+
+          // Setting the highlighting between the options
           self.highlightedOptionProperty.set( nextElementId );
-          self.optionHighlightedEmitter.emit1( optionNodes[ self.currentOptionIndex ] );
+
+          // Moving the particle to the current option
+          self.optionHighlightedEmitter.emit1( self.optionNodes[ self.currentOptionIndex ] );
         }
 
         // If key represents 'place' or 'end' condition
@@ -176,12 +180,11 @@ define( function( require ) {
                   event.keyCode === Input.KEY_TAB || event.keyCode === Input.KEY_ESCAPE ) {
           self.optionSelectedEmitter.emit1( event.keyCode );
         }
-
       }
     } );
 
     // add each node to the view
-    optionNodes.forEach( function( node ) { self.addChild( node ); } );
+    this.optionNodes.forEach( function( node ) { self.addChild( node ); } );
 
     // when the nucleus radius changes, redraw the nucleus focus highlight
     atom.nucleusRadiusProperty.link( function( radius ) {
@@ -195,6 +198,7 @@ define( function( require ) {
   // Inherit from Node.
   return inherit( Node, ElectronShellView, {
 
+    // @public (a11y)
     handleAccessibleDrag: function( particle, bucketFront ) {
       var self = this;
 
@@ -215,8 +219,6 @@ define( function( require ) {
         self.optionSelectedEmitter.removeListener( optionSelectedListener );
         self.optionHighlightedEmitter.removeListener( optionHighlightedListener );
 
-        // Reset the option index
-        self.currentOptionIndex = 0;
         particle.userControlledProperty.set( false );
 
         // TODO: move this into the if statement when we decide to implement removal of particles from the particleAtom.
@@ -226,7 +228,7 @@ define( function( require ) {
         self.focusable = false;
 
         // If tab was pressed then don't focus on the bucketFront again. Instead go to the next tab navigable element
-        if ( keyCode !== Input.KEY_TAB ){
+        if ( keyCode !== Input.KEY_TAB ) {
 
           // TODO: Ensure that this is called after all key events meant for the particleAtom are finished. See https://github.com/phetsims/a11y-research/26
           // put focus back onto the bucketFront
@@ -234,6 +236,11 @@ define( function( require ) {
         }
       };
       this.optionSelectedEmitter.addListener( optionSelectedListener );
+    },
+
+    // @public (a11y)
+    getCurrentParticleDropLocation: function() {
+      return this.optionNodes[ this.currentOptionIndex ].particleDropLocation;
     }
   } );
 } );
