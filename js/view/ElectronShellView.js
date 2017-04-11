@@ -111,6 +111,26 @@ define( function( require ) {
     var electronOuterFocusHighlight = new DonutNode( shellCenter, atom.outerElectronShellRadius );
     var electronInnerFocusHighlight = new DonutNode( shellCenter, atom.innerElectronShellRadius );
 
+    // add circles for each of the electron positions in the outer shells
+    var circle;
+    for ( var i = 0; i < 2; i++ ) {
+      circle = new Circle( 10, {
+        fill: null,
+        stroke: 'blue',
+        center: modelViewTransform.modelToViewPosition( this.atom.electronShellPositions[ i ].position )
+      } );
+      electronInnerFocusHighlight.addChild( circle );
+    }
+
+    for ( var j = 2; j < this.atom.electronShellPositions.length; j++ ) {
+      circle = new Circle( 10, {
+        fill: null,
+        stroke: 'blue',
+        center: modelViewTransform.modelToViewPosition( this.atom.electronShellPositions[ j ].position )
+      } );
+      electronOuterFocusHighlight.addChild( circle );
+    }
+
     // @private (a11y) - the shell/nucleus option that is currently highlighted while placing a particle in the atom
     this.highlightedOptionProperty = new Property( centerOption.accessibleId );
 
