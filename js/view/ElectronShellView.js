@@ -103,7 +103,11 @@ define( function( require ) {
 
     // a11y - a focus highlight around the nucleus
     var shellCenter = modelViewTransform.modelToViewPosition( { x: 0, y: 0 } );
-    var nucleusFocusHighlight = new DonutNode( shellCenter, atom.nucleusRadiusProperty.get() * 5 );
+    var nucleusFocusHighlight = new Circle( atom.nucleusRadiusProperty.get() * 5, {
+      fill: FocusOverlay.focusColor,
+      stroke: FocusOverlay.innerFocusColor,
+      center: shellCenter
+    } );
     var electronOuterFocusHighlight = new DonutNode( shellCenter, atom.outerElectronShellRadius );
     var electronInnerFocusHighlight = new DonutNode( shellCenter, atom.innerElectronShellRadius );
 
@@ -129,8 +133,8 @@ define( function( require ) {
 
     // @private (a11y) - a map of drop locations for particles that are being moved into the atom with a keyboard
     centerOption.particleDropLocation = new Vector2( 0, 0 );
-    innerRing.particleDropLocation = new Vector2( atom.innerElectronShellRadius, 0 );
-    outerRing.particleDropLocation = new Vector2( atom.outerElectronShellRadius, 0 );
+    innerRing.particleDropLocation = new Vector2( atom.innerElectronShellRadius + 10, 0 );
+    outerRing.particleDropLocation = new Vector2( atom.outerElectronShellRadius + 10, 0 );
 
     // @private a11y - set the selectProperty when the arrow keys change the html select menu's value.
     this.optionNodes = [ centerOption, innerRing, outerRing ];
@@ -176,8 +180,8 @@ define( function( require ) {
 
     // when the nucleus radius changes, redraw the nucleus focus highlight
     atom.nucleusRadiusProperty.link( function( radius ) {
-      var radiusOffset = radius === 0 ? 0 : 4;
-      nucleusFocusHighlight.radius = radius + radiusOffset;
+      var radiusOffset = radius === 0 ? 0 : 10;
+      centerOption.particleDropLocation = new Vector2( radius + radiusOffset, 0 );
     } );
   }
 
@@ -210,7 +214,7 @@ define( function( require ) {
 
         // Put the particle back in the bucket if it isn't purposefully dropped.
         if ( keyCode === Input.KEY_TAB || keyCode === Input.KEY_ESCAPE ){
-          bucketFront.bucket.addParticleFirstOpen(particle);
+          bucketFront.bucket.addParticleFirstOpen( particle, true );
         }
         particle.userControlledProperty.set( false );
 
