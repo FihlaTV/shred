@@ -133,8 +133,8 @@ define( function( require ) {
 
     // @private (a11y) - a map of drop locations for particles that are being moved into the atom with a keyboard
     centerOption.particleDropLocation = new Vector2( 0, 0 );
-    innerRing.particleDropLocation = new Vector2( atom.innerElectronShellRadius + 15, 0 );
-    outerRing.particleDropLocation = new Vector2( atom.outerElectronShellRadius + 15, 0 );
+    innerRing.particleDropLocation = new Vector2( atom.innerElectronShellRadius + 10, 0 );
+    outerRing.particleDropLocation = new Vector2( atom.outerElectronShellRadius + 10, 0 );
 
     // @private a11y - set the selectProperty when the arrow keys change the html select menu's value.
     this.optionNodes = [ centerOption, innerRing, outerRing ];
