@@ -14,10 +14,13 @@ define( function( require ) {
   var shred = require( 'SHRED/shred' );
   var Tandem = require( 'TANDEM/Tandem' );
   var Circle = require( 'SCENERY/nodes/Circle' );
+  var Path = require( 'SCENERY/nodes/Path' );
+  var Shape = require( 'KITE/Shape' );
   var Node = require( 'SCENERY/nodes/Node' );
   var Property = require( 'AXON/Property' );
   var Emitter = require( 'AXON/Emitter' );
   var Vector2 = require( 'DOT/Vector2' );
+  var FocusOverlay = require( 'SCENERY/overlays/FocusOverlay' );
   var Input = require( 'SCENERY/input/Input' );
 
   // constants
@@ -98,26 +101,11 @@ define( function( require ) {
       accessibleLabel: 'Nucleus'
     } );
 
-    // a11y - a focus highlight around the nucleus, will change in size when the particles in the nucleus change
-    var nucleusFocusHighlight = new Circle( atom.nucleusRadius, {
-      lineWidth: 2,
-      stroke: 'red',
-      translation: modelViewTransform.modelToViewPosition( { x: 0, y: 0 } )
-    } );
-
-    // a11y - a focus highlight for the outer shell
-    var electronOuterFocusHighlight = new Circle( atom.outerElectronShellRadius, {
-      lineWidth: 2,
-      stroke: 'red',
-      translation: modelViewTransform.modelToViewPosition( { x: 0, y: 0 } )
-    } );
-
-    // a11y - a focus highlight for the inner shell
-    var electronInnerFocusHighlight = new Circle( atom.innerElectronShellRadius, {
-      lineWidth: 2,
-      stroke: 'red',
-      translation: modelViewTransform.modelToViewPosition( { x: 0, y: 0 } )
-    } );
+    // a11y - a focus highlight around the nucleus
+    var shellCenter = modelViewTransform.modelToViewPosition( { x: 0, y: 0 } );
+    var nucleusFocusHighlight = new DonutNode( shellCenter, atom.nucleusRadiusProperty.get() * 5 );
+    var electronOuterFocusHighlight = new DonutNode( shellCenter, atom.outerElectronShellRadius );
+    var electronInnerFocusHighlight = new DonutNode( shellCenter, atom.innerElectronShellRadius );
 
     // @private (a11y) - the shell/nucleus option that is currently highlighted while placing a particle in the atom
     this.highlightedOptionProperty = new Property( centerOption.accessibleId );
@@ -196,7 +184,7 @@ define( function( require ) {
   shred.register( 'ElectronShellView', ElectronShellView );
 
   // Inherit from Node.
-  return inherit( Node, ElectronShellView, {
+  inherit( Node, ElectronShellView, {
 
     // @public (a11y)
     handleAccessibleDrag: function( particle, bucketFront ) {
@@ -250,4 +238,48 @@ define( function( require ) {
       return this.optionNodes[ this.currentOptionIndex ].particleDropLocation;
     }
   } );
+
+  /**
+   * Draws a 'donut' shape, like a 2-D torus.  The donut has an inner circle that is surrounded by two dashed lines
+   * that make up the stroke.
+   * 
+   * @param {Vector2} center
+   * @param {number} radius
+   * @param {object} options
+   */
+  function DonutNode( center, radius, options ) {
+
+    options = _.extend( {
+      glazeColor: FocusOverlay.innerFocusColor,
+      doughColor: FocusOverlay.focusColor,
+      innerWidth: 9 // width of the dough, the circle in between the dashed lines
+    } );
+
+    Node.call( this, options );
+
+    // the dough
+    var innerPath = new Path( Shape.circle( center, radius), {
+      fill: null,
+      stroke: options.doughColor,
+      lineWidth: options.innerWidth
+    } );
+
+    // outer glaze
+    var outerGlaze = new Path( Shape.circle( center, radius + options.innerWidth / 2 ), {
+      fill: null,
+      stroke: options.glazeColor
+    } );
+
+    // inner glaze
+    var innerGlaze = new Path( Shape.circle( center, radius - options.innerWidth / 2 ), {
+      fill: null,
+      stroke: options.glazeColor
+    } );
+
+    this.children = [ innerPath, outerGlaze, innerGlaze ];
+  }
+
+  inherit( Node, DonutNode );
+
+  return ElectronShellView;
 } );
