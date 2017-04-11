@@ -168,8 +168,7 @@ define( function( require ) {
         }
 
         // If key represents 'place' or 'end' condition
-        else if ( event.keyCode === Input.KEY_ENTER || event.keyCode === Input.KEY_SPACE ||
-                  event.keyCode === Input.KEY_TAB || event.keyCode === Input.KEY_ESCAPE ) {
+        else if ( event.keyCode === Input.KEY_ENTER || event.keyCode === Input.KEY_SPACE ) {
           self.optionSelectedEmitter.emit1( event.keyCode );
         }
       }
