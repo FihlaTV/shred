@@ -98,6 +98,10 @@ define( function( require ) {
     var updateElectronShellDepictionVisibility = function( depiction ) {
       self.electronShell.visible = depiction === 'orbits';
       electronCloud.visible = depiction === 'cloud';
+
+      // (a11y) - Hide the accessible content if not showing this view depiction of the model.
+      self.electronShell.accessibleHidden = depiction !== 'orbits' ;
+      electronCloud.accessibleHidden = depiction !== 'cloud';
     };
     options.electronShellDepictionProperty.link( updateElectronShellDepictionVisibility );
 
