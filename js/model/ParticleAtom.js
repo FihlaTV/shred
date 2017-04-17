@@ -147,7 +147,7 @@ define( function( require ) {
     this.electronAddMode = 'proximal'; // @private
 
     // Initialize the positions where an electron can be placed.
-    this.electronShellPositions = new Array( NUM_ELECTRON_POSITIONS ); // @private
+    this.electronShellPositions = new Array( NUM_ELECTRON_POSITIONS ); // @public (a11y)
     this.electronShellPositions[ 0 ] = {
       electron: null,
       position: new Vector2( self.innerElectronShellRadius, 0 )
