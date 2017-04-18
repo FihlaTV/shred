@@ -14,6 +14,7 @@ define( function( require ) {
   var shred = require( 'SHRED/shred' );
   var Tandem = require( 'TANDEM/Tandem' );
   var Circle = require( 'SCENERY/nodes/Circle' );
+  var Rectangle = require( 'SCENERY/nodes/Rectangle' );
   var Path = require( 'SCENERY/nodes/Path' );
   var Shape = require( 'KITE/Shape' );
   var Node = require( 'SCENERY/nodes/Node' );
@@ -250,7 +251,7 @@ define( function( require ) {
       var circleCenter = modelViewTransform.modelToViewPosition( electronShellPositions[ i ].position );
       circleCenter = this.parentToLocalPoint( circleCenter );
       
-      var circle = new Circle( 10, {
+      var circle = new Rectangle( 0, 0, 20, 20, {
         fill: null,
         stroke: 'blue',
         center: circleCenter,
