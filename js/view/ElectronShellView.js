@@ -279,10 +279,10 @@ define( function( require ) {
 
           // if event was an arrow key
           if ( isDownRight || isUpLeft ) {
-            if ( isDownRight ) {
+            if ( isUpLeft ) {
               self.currentOptionIndex = ( self.currentOptionIndex + 1 ) % self.electronPlacementNodes.length;
             }
-            else if ( isUpLeft ) {
+            else if ( isDownRight ) {
               self.currentOptionIndex = self.currentOptionIndex - 1;
               if ( self.currentOptionIndex < 0 ) { self.currentOptionIndex = self.electronPlacementNodes.length - 1; }
             }
@@ -349,8 +349,7 @@ define( function( require ) {
       } );
 
       // Moving the particle to the current option
-      particle.destinationProperty.set( this.previouslyFocusedElectron.center );
-
+      particle.destinationProperty.set( this.electronShellPositions[ this.currentOptionIndex ].position );
       this.previouslyFocusedElectron.focus();
     }
 
