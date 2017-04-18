@@ -83,6 +83,7 @@ define( function( require ) {
 
       // The first two electron shell positions from the model go on the inner electron shell ring
       atom.electronShellPositions.slice( 0, 2 ),
+      modelViewTransform,
       {
         stroke: 'blue',
         lineWidth: 1.5,
@@ -104,6 +105,7 @@ define( function( require ) {
 
       // The first two electron shell positions from the model go on the inner electron shell ring
       atom.electronShellPositions.slice( 2 ),
+      modelViewTransform,
       {
         stroke: 'blue',
         lineWidth: 1.5,
@@ -231,7 +233,7 @@ define( function( require ) {
   shred.register( 'ElectronShellView', ElectronShellView );
 
 
-  function ElectronRingNode( radius, electronShellPositions, options ) {
+  function ElectronRingNode( radius, electronShellPositions, modelViewTransform, options ) {
     var self = this;
 
     Circle.call( this, radius, options );
@@ -242,10 +244,16 @@ define( function( require ) {
     this.choosingElectronPlacement = false;
     // add circles for each of the electron positions in the outer shells
     for ( var i = 0; i < electronShellPositions.length; i++ ) {
+
+      // the center of the circle will be at the electron shell position, relative to the parent
+      // coordinate frame
+      var circleCenter = modelViewTransform.modelToViewPosition( electronShellPositions[ i ].position );
+      circleCenter = this.parentToLocalPoint( circleCenter );
+      
       var circle = new Circle( 10, {
         fill: null,
         stroke: 'blue',
-        center: electronShellPositions[ i ].position,
+        center: circleCenter,
 
         // a11y
         tagName: 'div',
