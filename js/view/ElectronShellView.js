@@ -246,24 +246,27 @@ define( function( require ) {
     // add circles for each of the electron positions in the outer shells
     for ( var i = 0; i < electronShellPositions.length; i++ ) {
 
-      // the center of the circle will be at the electron shell position, relative to the parent
+      // the center of the dash will be at the electron shell position, relative to the parent
       // coordinate frame
-      var circleCenter = modelViewTransform.modelToViewPosition( electronShellPositions[ i ].position );
-      circleCenter = this.parentToLocalPoint( circleCenter );
+      var position = electronShellPositions[ i ].position;
+      var dashCenter = modelViewTransform.modelToViewPosition( position );
+      dashCenter = this.parentToLocalPoint( dashCenter );
 
-      var circle = new Rectangle( 0, 0, 20, 20, {
-        fill: null,
+
+      var dash = new Rectangle( -2, -5, 4, 10, {
+        fill: 'blue',
         stroke: 'blue',
-        center: circleCenter,
+        center: dashCenter,
 
         // a11y
         tagName: 'div',
-        focusable: true
+        focusable: true,
+        focusHighlight: new Rectangle( -10, -10, 20, 20, {stroke: FocusOverlay.innerFocusColor, lineWidth: 3, fill: null} )
       } );
 
-
-      this.electronPlacementNodes.push( circle );
-      this.addChild( circle );
+      dash.rotate( Math.atan( dashCenter.y / dashCenter.x ) + Math.PI / 2  );
+      this.electronPlacementNodes.push( dash );
+      this.addChild( dash );
     }
     this.previouslyFocusedElectron = this.electronPlacementNodes[ 0 ];
 
