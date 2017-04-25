@@ -260,11 +260,12 @@ define( function( require ) {
 
         // a11y
         tagName: 'div',
-        focusable: true,
+        focusable: false,
         focusHighlight: new Rectangle( -10, -10, 20, 20, {stroke: FocusOverlay.innerFocusColor, lineWidth: 3, fill: null} )
       } );
 
       dash.rotate( Math.atan( dashCenter.y / dashCenter.x ) + Math.PI / 2  );
+      dash.visible = false;
       this.electronPlacementNodes.push( dash );
       this.addChild( dash );
     }
@@ -312,6 +313,13 @@ define( function( require ) {
             }
             self.activeParticle.userControlledProperty.set( false );
 
+            self.electronPlacementNodes.forEach( function( childCircle ) {
+              childCircle.focusable = false;
+              childCircle.accessibleHidden = true;
+
+              childCircle.visible = false;
+            } );
+
             // This is to help animate accessible drag
             self.activeParticle.isAccessibleControlled = false;
 
@@ -345,6 +353,7 @@ define( function( require ) {
 
       this.choosingElectronPlacement = true;
       this.electronPlacementNodes.forEach( function( childCircle ) {
+        childCircle.focusable = true;
         childCircle.accessibleHidden = false;
 
         childCircle.visible = true;
