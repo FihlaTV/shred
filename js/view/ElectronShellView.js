@@ -56,7 +56,7 @@ define( function( require ) {
 
     // a11y - a focus highlight around the nucleus
     var shellCenter = new Vector2( 0, 0 );
-    var nucleusFocusHighlight = new Circle( atom.nucleusRadiusProperty.get() * 5, {
+    var nucleusFocusHighlight = new Circle( atom.nucleusRadiusProperty.get() * 4, {
       fill: FocusOverlay.focusColor,
       stroke: FocusOverlay.innerFocusColor,
       center: modelViewTransform.modelToViewPosition( shellCenter )
@@ -226,8 +226,15 @@ define( function( require ) {
 
     // when the nucleus radius changes, redraw the nucleus focus highlight
     atom.nucleusRadiusProperty.link( function( radius ) {
-      var radiusOffset = radius === 0 ? 0 : 10;
-      self.centerOption.shellNucleusHoverLocations = new Vector2( radius + radiusOffset, 0 );
+      var radiusOffset = radius === 0 ? 0 : 7;
+      self.centerOption.shellNucleusHoverLocations = new Vector2( radius + radiusOffset, radiusOffset );
+
+      // TODO is the focus highlight disposing the old circle before setting this new one?
+      self.centerOption.focusHighlight = new Circle( atom.nucleusRadiusProperty.get() + 3, {
+        fill: FocusOverlay.focusColor,
+        stroke: FocusOverlay.innerFocusColor,
+        center: modelViewTransform.modelToViewPosition( shellCenter )
+      } );
     } );
   }
 
@@ -261,10 +268,14 @@ define( function( require ) {
         // a11y
         tagName: 'div',
         focusable: false,
-        focusHighlight: new Rectangle( -10, -10, 20, 20, {stroke: FocusOverlay.innerFocusColor, lineWidth: 3, fill: null} )
+        focusHighlight: new Rectangle( -10, -10, 20, 20, {
+          stroke: FocusOverlay.innerFocusColor,
+          lineWidth: 3,
+          fill: null
+        } )
       } );
 
-      dash.rotate( Math.atan( dashCenter.y / dashCenter.x ) + Math.PI / 2  );
+      dash.rotate( Math.atan( dashCenter.y / dashCenter.x ) + Math.PI / 2 );
       dash.visible = false;
       this.electronPlacementNodes.push( dash );
       this.addChild( dash );
