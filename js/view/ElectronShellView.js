@@ -131,9 +131,9 @@ define( function( require ) {
     this.shellNucluesOptions = [ this.centerOption, this.innerRing, this.outerRing ];
 
     // // @private (a11y) - a map of drop locations for particles that are being moved into the atom with a keyboard
-    this.centerOption.shellNucleusHoverLocations = new Vector2( 0, 0 );
-    this.innerRing.shellNucleusHoverLocations = new Vector2( atom.innerElectronShellRadius + 10, 0 );
-    this.outerRing.shellNucleusHoverLocations = new Vector2( atom.outerElectronShellRadius + 10, 0 );
+    this.centerOption.shellNucleusHoverLocations = new Vector2( 10, 10 );
+    this.innerRing.shellNucleusHoverLocations = new Vector2( atom.innerElectronShellRadius + 10, 10 );
+    this.outerRing.shellNucleusHoverLocations = new Vector2( atom.outerElectronShellRadius + 10, 10 );
 
     this.currentOptionIndex = 0;
     this.addAccessibleInputListener( {
@@ -250,7 +250,7 @@ define( function( require ) {
       // coordinate frame
       var circleCenter = modelViewTransform.modelToViewPosition( electronShellPositions[ i ].position );
       circleCenter = this.parentToLocalPoint( circleCenter );
-      
+
       var circle = new Rectangle( 0, 0, 20, 20, {
         fill: null,
         stroke: 'blue',
@@ -291,10 +291,9 @@ define( function( require ) {
             currentNode.focus();
 
 
-            //TODO use an offset while selecting.
             // Moving the particle to the current option
             self.activeParticle.destinationProperty.set(
-              electronShellPositions[ self.currentOptionIndex ].position );
+              electronShellPositions[ self.currentOptionIndex ].position.plusXY( 10, 10 ) );
 
             // Update the last focused node
             self.previouslyFocusedElectron = currentNode;
@@ -349,7 +348,7 @@ define( function( require ) {
       } );
 
       // Moving the particle to the current option
-      particle.destinationProperty.set( this.electronShellPositions[ this.currentOptionIndex ].position );
+      particle.destinationProperty.set( this.electronShellPositions[ this.currentOptionIndex ].position.plusXY( 10, 10 ) );
       this.previouslyFocusedElectron.focus();
     }
 
