@@ -253,9 +253,9 @@ define( function( require ) {
       dashCenter = this.parentToLocalPoint( dashCenter );
 
 
-      var dash = new Rectangle( -2, -5, 4, 10, {
-        fill: 'blue',
-        stroke: 'blue',
+      var dash = new Rectangle( -3, -3, 6, 6, {
+        fill: FocusOverlay.focusColor,
+        stroke: FocusOverlay.focusColor,
         center: dashCenter,
 
         // a11y
@@ -291,13 +291,17 @@ define( function( require ) {
               if ( self.currentOptionIndex < 0 ) { self.currentOptionIndex = self.electronPlacementNodes.length - 1; }
             }
 
+            // Set the previously focused electron placement marker visible, because only the currently highlighted one
+            // should be replaced by the focus highlight.
+            self.previouslyFocusedElectron.visible = true;
+
             var currentNode = self.electronPlacementNodes[ self.currentOptionIndex ];
             currentNode.focus();
+            currentNode.visible = false;
 
-
+            var position = electronShellPositions[ self.currentOptionIndex ].position;
             // Moving the particle to the current option
-            self.activeParticle.destinationProperty.set(
-              electronShellPositions[ self.currentOptionIndex ].position.plusXY( 10, 10 ) );
+            self.activeParticle.destinationProperty.set( position.times( 1.05 ) );
 
             // Update the last focused node
             self.previouslyFocusedElectron = currentNode;
@@ -325,9 +329,9 @@ define( function( require ) {
 
             self.activeParticle = null;
 
-            // // If tab was pressed then don't focus on the bucketFront again. Instead go to the next tab navigable element
+            // If tab was pressed then don't focus on the bucketFront again. Instead go to the next tab navigable element
             if ( event.keyCode !== Input.KEY_TAB ) {
-              //
+
               // TODO: Ensure that this is called after all key events meant for the particleAtom are finished. See https://github.com/phetsims/a11y-research/26
               // put focus back onto the bucketFront
               setTimeout( function() {
@@ -360,8 +364,11 @@ define( function( require ) {
       } );
 
       // Moving the particle to the current option
-      particle.destinationProperty.set( this.electronShellPositions[ this.currentOptionIndex ].position.plusXY( 10, 10 ) );
+      particle.destinationProperty.set( this.electronShellPositions[ this.currentOptionIndex ].position.times( 1.05 ) );
       this.previouslyFocusedElectron.focus();
+
+      // The focus highlight should 'replace' the placement marker, so make the marker invisible until.
+      this.previouslyFocusedElectron.visible = false;
     }
 
   } );
