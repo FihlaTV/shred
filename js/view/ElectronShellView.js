@@ -128,7 +128,7 @@ define( function( require ) {
     this.previouslyFocusedNode = this.centerOption;
 
     // @private a11y - set the selectProperty when the arrow keys change the html select menu's value.
-    this.shellNucluesOptions = [ this.centerOption, this.innerRing, this.outerRing ];
+    this.shellNucleusOptions = [ this.centerOption, this.innerRing, this.outerRing ];
 
     // // @private (a11y) - a map of drop locations for particles that are being moved into the atom with a keyboard
     this.centerOption.shellNucleusHoverLocations = new Vector2( 10, 10 );
@@ -139,6 +139,7 @@ define( function( require ) {
     this.addAccessibleInputListener( {
       keydown: function( event ) {
 
+
         if ( self.selectingShellNucleusOptions ) {
           var isDownRight = event.keyCode === Input.KEY_DOWN_ARROW || event.keyCode === Input.KEY_RIGHT_ARROW;
           var isUpLeft = event.keyCode === Input.KEY_UP_ARROW || event.keyCode === Input.KEY_LEFT_ARROW;
@@ -146,14 +147,15 @@ define( function( require ) {
           // if event was an arrow key
           if ( isDownRight || isUpLeft ) {
             if ( isDownRight ) {
-              self.currentOptionIndex = ( self.currentOptionIndex + 1 ) % self.shellNucluesOptions.length;
+              self.currentOptionIndex = ( self.currentOptionIndex + 1 ) % self.shellNucleusOptions.length;
             }
             else if ( isUpLeft ) {
               self.currentOptionIndex = self.currentOptionIndex - 1;
-              if ( self.currentOptionIndex < 0 ) { self.currentOptionIndex = self.shellNucluesOptions.length - 1; }
+              if ( self.currentOptionIndex < 0 ) { self.currentOptionIndex = self.shellNucleusOptions.length - 1; }
             }
 
-            var currentNode = self.shellNucluesOptions[ self.currentOptionIndex ];
+            var currentNode = self.shellNucleusOptions[ self.currentOptionIndex ];
+
             currentNode.focus();
 
             // Moving the particle to the current option
@@ -181,6 +183,10 @@ define( function( require ) {
                 if ( event.keyCode === Input.KEY_TAB || event.keyCode === Input.KEY_ESCAPE ) {
                   self.currentlySelectedBucketFront.bucket.addParticleFirstOpen( self.currentlyDraggedParticle, true );
                 }
+
+                var nucleusNode = self.shellNucleusOptions[ self.currentOptionIndex ];
+                self.currentlyDraggedParticle.positionProperty.set( nucleusNode.shellNucleusHoverLocations );
+
                 self.currentlyDraggedParticle.userControlledProperty.set( false );
 
                 // This is to help animate accessible drag
@@ -213,7 +219,7 @@ define( function( require ) {
                 self.selectingShellNucleusOptions = false;
 
                 // Not the node for the nucleus, let the out shells handle their own electron selection
-                var outerNode = self.shellNucluesOptions[ self.currentOptionIndex ];
+                var outerNode = self.shellNucleusOptions[ self.currentOptionIndex ];
 
                 outerNode.chooseElectron( self.currentlyDraggedParticle, self.currentlySelectedBucketFront );
               }
@@ -326,6 +332,7 @@ define( function( require ) {
             if ( event.keyCode === Input.KEY_TAB || event.keyCode === Input.KEY_ESCAPE ) {
               self.activeBucketFront.bucket.addParticleFirstOpen( self.activeParticle, true );
             }
+            self.activeParticle.positionProperty.set( electronShellPositions[ self.currentOptionIndex ].position );
             self.activeParticle.userControlledProperty.set( false );
 
             self.electronPlacementNodes.forEach( function( childCircle ) {
@@ -450,7 +457,7 @@ define( function( require ) {
 
     // @public (a11y)
     getCurrentParticleHoverLocation: function() {
-      return this.shellNucluesOptions[ this.currentOptionIndex ].shellNucleusHoverLocations;
+      return this.shellNucleusOptions[ this.currentOptionIndex ].shellNucleusHoverLocations;
     }
   } );
 

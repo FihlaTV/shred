@@ -103,7 +103,7 @@ define( function( require ) {
       if ( !this.userControlledProperty.get() || this.isAccessibleControlled) {
         var position = this.positionProperty.get();
         var destination = this.destinationProperty.get();
-        var velocity = this.animationVelocityProperty.get();
+        var velocity = this.isAccessibleControlled ? this.animationVelocityProperty.get() * 4 : this.animationVelocityProperty.get();
         var distanceToDestination = position.distance( destination );
         if ( distanceToDestination > dt * velocity ) {
           // This was broken up into individual steps in an attempt to solve an issue where complex vector operations
