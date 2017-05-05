@@ -414,6 +414,9 @@ define( function( require ) {
       this.protons.forEach( function( particle ) { self.removeParticle( particle ); } );
       this.neutrons.forEach( function( particle ) { self.removeParticle( particle ); } );
       this.electrons.forEach( function( particle ) { self.removeParticle( particle ); } );
+
+      // a11y - reset the size of the nucleus because we are clearing out all of the particles.
+      this.nucleusRadiusProperty.reset();
     },
 
     /**
