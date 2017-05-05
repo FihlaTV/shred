@@ -249,7 +249,6 @@ define( function( require ) {
       // TODO is the focus highlight disposing the old circle before setting this new one?
       self.centerOption.focusHighlight = newFocusHighlightCircle;
       self.centerOption.children = [ newFocusHighlightCircle ];
-      window.centerOption = self.centerOption;
     } );
   }
 
@@ -285,11 +284,13 @@ define( function( require ) {
         fill: FocusOverlay.focusColor,
         stroke: FocusOverlay.focusColor,
         center: dashCenter,
+        children: [ focusHighlightRectangle ],
 
         // a11y
         tagName: 'div',
         focusable: false,
-        focusHighlight: focusHighlightRectangle
+        focusHighlight: focusHighlightRectangle,
+        focusHighlightLayerable: true
       } );
 
       dash.rotate( Math.atan( dashCenter.y / dashCenter.x ) + Math.PI / 2 );
@@ -324,6 +325,7 @@ define( function( require ) {
             self.previouslyFocusedElectron.visible = true;
 
             var currentNode = self.electronPlacementNodes[ self.currentOptionIndex ];
+            debugger;
             currentNode.focus();
             currentNode.visible = false;
 
