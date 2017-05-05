@@ -56,7 +56,7 @@ define( function( require ) {
 
     // a11y - a focus highlight around the nucleus
     var shellCenter = new Vector2( 0, 0 );
-    var nucleusFocusHighlight = new Circle( atom.nucleusRadiusProperty.get() * 4, {
+    var nucleusFocusHighlight = new Circle( atom.nucleusRadiusProperty.get() * 1.5, {
       fill: FocusOverlay.focusColor,
       stroke: FocusOverlay.innerFocusColor,
       center: modelViewTransform.modelToViewPosition( shellCenter )
@@ -69,13 +69,15 @@ define( function( require ) {
 
     // a11y - an invisible node that allows the nucleus to be highlighted.
     this.centerOption = new Node( {
+      children: [ nucleusFocusHighlight ],
 
       // a11y
       tagName: 'div',
       ariaRole: 'option',
       accessibleLabel: 'Nucleus',
       focusable: true,
-      focusHighlight: nucleusFocusHighlight
+      focusHighlight: nucleusFocusHighlight,
+      focusHighlightLayerable: true
     } );
     this.addChild( this.centerOption );
 
@@ -92,13 +94,15 @@ define( function( require ) {
         center: modelViewTransform.modelToViewPosition( { x: 0, y: 0 } ),
         pickable: false,
         tandem: options.tandem.createTandem( 'innerRing' ),
+        children: [ electronInnerFocusHighlight ],
 
         //a11y
         tagName: 'li',
         ariaRole: 'option',
         accessibleLabel: 'Inner Electron Ring',
         focusable: true,
-        focusHighlight: electronInnerFocusHighlight
+        focusHighlight: electronInnerFocusHighlight,
+        focusHighlightLayerable: true
       } );
     this.addChild( this.innerRing );
 
@@ -114,13 +118,15 @@ define( function( require ) {
         center: modelViewTransform.modelToViewPosition( { x: 0, y: 0 } ),
         pickable: false,
         tandem: options.tandem.createTandem( 'outerRing' ),
+        children: [ electronOuterFocusHighlight ],
 
         // a11y
         tagName: 'li',
         ariaRole: 'option',
         accessibleLabel: 'Outer Electron Ring',
         focusable: true,
-        focusHighlight: electronOuterFocusHighlight
+        focusHighlight: electronOuterFocusHighlight,
+        focusHighlightLayerable: true
       } );
     this.addChild( this.outerRing );
 
@@ -235,12 +241,15 @@ define( function( require ) {
       var radiusOffset = radius === 0 ? 0 : 7;
       self.centerOption.shellNucleusHoverLocations = new Vector2( radius + radiusOffset, radiusOffset );
 
-      // TODO is the focus highlight disposing the old circle before setting this new one?
-      self.centerOption.focusHighlight = new Circle( atom.nucleusRadiusProperty.get() + 3, {
+      var newFocusHighlightCircle = new Circle( atom.nucleusRadiusProperty.get() + 3, {
         fill: FocusOverlay.focusColor,
         stroke: FocusOverlay.innerFocusColor,
         center: modelViewTransform.modelToViewPosition( shellCenter )
       } );
+      // TODO is the focus highlight disposing the old circle before setting this new one?
+      self.centerOption.focusHighlight = newFocusHighlightCircle;
+      self.centerOption.children = [ newFocusHighlightCircle ];
+      window.centerOption = self.centerOption;
     } );
   }
 
@@ -266,6 +275,12 @@ define( function( require ) {
       dashCenter = this.parentToLocalPoint( dashCenter );
 
 
+      var focusHighlightRectangle = new Rectangle( -10, -10, 20, 20, {
+        stroke: FocusOverlay.innerFocusColor,
+        lineWidth: 3,
+        fill: null,
+        visible: true
+      } );
       var dash = new Rectangle( -3, -3, 6, 6, {
         fill: FocusOverlay.focusColor,
         stroke: FocusOverlay.focusColor,
@@ -274,11 +289,7 @@ define( function( require ) {
         // a11y
         tagName: 'div',
         focusable: false,
-        focusHighlight: new Rectangle( -10, -10, 20, 20, {
-          stroke: FocusOverlay.innerFocusColor,
-          lineWidth: 3,
-          fill: null
-        } )
+        focusHighlight: focusHighlightRectangle
       } );
 
       dash.rotate( Math.atan( dashCenter.y / dashCenter.x ) + Math.PI / 2 );
@@ -374,11 +385,11 @@ define( function( require ) {
       this.activeBucketFront = bucketFront;
 
       this.choosingElectronPlacement = true;
-      this.electronPlacementNodes.forEach( function( childCircle ) {
-        childCircle.focusable = true;
-        childCircle.accessibleHidden = false;
+      this.electronPlacementNodes.forEach( function( childSquares ) {
+        childSquares.focusable = true;
+        childSquares.accessibleHidden = false;
 
-        childCircle.visible = true;
+        childSquares.visible = true;
       } );
 
       // Moving the particle to the current option
