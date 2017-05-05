@@ -24,6 +24,7 @@ define( function( require ) {
 
   // constants
   var LINE_DASH = [ 4, 5 ];
+  var ELECTRON_PLACEMENT_SCALAR = 1.07;
 
   /**
    * @param {ParticleAtom} atom
@@ -274,29 +275,40 @@ define( function( require ) {
       dashCenter = this.parentToLocalPoint( dashCenter );
 
 
-      var focusHighlightRectangle = new Rectangle( -10, -10, 20, 20, {
+      // This is a sibling of the dash so that you can toggle each of them being visible individually.
+      var dashFocusHighlightRectangle = new Rectangle( -10, -10, 20, 20, {
         stroke: FocusOverlay.innerFocusColor,
         lineWidth: 3,
         fill: null,
-        visible: true
+        visible: true,
+        center: dashCenter
       } );
+
       var dash = new Rectangle( -3, -3, 6, 6, {
         fill: FocusOverlay.focusColor,
         stroke: FocusOverlay.focusColor,
         center: dashCenter,
-        children: [ focusHighlightRectangle ],
 
         // a11y
         tagName: 'div',
         focusable: false,
-        focusHighlight: focusHighlightRectangle,
+        focusHighlight: dashFocusHighlightRectangle,
         focusHighlightLayerable: true
       } );
 
-      dash.rotate( Math.atan( dashCenter.y / dashCenter.x ) + Math.PI / 2 );
+      // rotate in the options didn't work
+      var electronPlacementRotation = Math.atan( dashCenter.y / dashCenter.x ) + Math.PI / 2;
+      dashFocusHighlightRectangle.rotate( electronPlacementRotation );
+      dash.rotate( electronPlacementRotation );
       dash.visible = false;
+
+      // Add this dash to the list of all of the dashes
       this.electronPlacementNodes.push( dash );
       this.addChild( dash );
+
+      // Add the focus highlight as a sibling of the dash so that we can make each of them invisible individually.
+      // Add this after the dash so that it is on top.
+      this.addChild( dashFocusHighlightRectangle );
     }
     this.previouslyFocusedElectron = this.electronPlacementNodes[ 0 ];
 
@@ -326,11 +338,12 @@ define( function( require ) {
 
             var currentNode = self.electronPlacementNodes[ self.currentOptionIndex ];
             currentNode.focus();
+            currentNode.visible = false;
 
             var position = electronShellPositions[ self.currentOptionIndex ].position;
 
             // Moving the particle to the current option
-            self.activeParticle.destinationProperty.set( position.times( 1.05 ) );
+            self.activeParticle.destinationProperty.set( position.times( ELECTRON_PLACEMENT_SCALAR ) );
 
             // Update the last focused node
             self.previouslyFocusedElectron = currentNode;
@@ -394,8 +407,11 @@ define( function( require ) {
       } );
 
       // Moving the particle to the current option
-      particle.destinationProperty.set( this.electronShellPositions[ this.currentOptionIndex ].position.times( 1.05 ) );
+      particle.destinationProperty.set( this.electronShellPositions[ this.currentOptionIndex ].position.times( ELECTRON_PLACEMENT_SCALAR ) );
       this.previouslyFocusedElectron.focus();
+
+      // The focus highlight should 'replace' the placement marker, so make the marker invisible until.
+      this.previouslyFocusedElectron.visible = false;
     }
 
   } );
