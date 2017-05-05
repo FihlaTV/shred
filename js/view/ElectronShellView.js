@@ -325,11 +325,10 @@ define( function( require ) {
             self.previouslyFocusedElectron.visible = true;
 
             var currentNode = self.electronPlacementNodes[ self.currentOptionIndex ];
-            debugger;
             currentNode.focus();
-            currentNode.visible = false;
 
             var position = electronShellPositions[ self.currentOptionIndex ].position;
+
             // Moving the particle to the current option
             self.activeParticle.destinationProperty.set( position.times( 1.05 ) );
 
@@ -397,9 +396,6 @@ define( function( require ) {
       // Moving the particle to the current option
       particle.destinationProperty.set( this.electronShellPositions[ this.currentOptionIndex ].position.times( 1.05 ) );
       this.previouslyFocusedElectron.focus();
-
-      // The focus highlight should 'replace' the placement marker, so make the marker invisible until.
-      this.previouslyFocusedElectron.visible = false;
     }
 
   } );
