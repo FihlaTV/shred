@@ -242,6 +242,7 @@ define( function( require ) {
       var radiusOffset = radius === 0 ? 0 : 7;
       self.centerOption.shellNucleusHoverLocations = new Vector2( radius + radiusOffset, radiusOffset );
 
+      // TODO: Just update the radius of the current circle. No need to make a new one.
       var newFocusHighlightCircle = new Circle( atom.nucleusRadiusProperty.get() + 3, {
         fill: FocusOverlay.focusColor,
         stroke: FocusOverlay.innerFocusColor,
