@@ -60,7 +60,8 @@ define( function( require ) {
     var nucleusFocusHighlight = new Circle( atom.nucleusRadiusProperty.get() * 1.5, {
       fill: FocusOverlay.focusColor,
       stroke: FocusOverlay.innerFocusColor,
-      center: modelViewTransform.modelToViewPosition( shellCenter )
+      center: modelViewTransform.modelToViewPosition( shellCenter ),
+      visible: false
     } );
 
     // a11y - focus highlight donuts that surround the electron shells.
@@ -246,7 +247,8 @@ define( function( require ) {
       var newFocusHighlightCircle = new Circle( atom.nucleusRadiusProperty.get() + 3, {
         fill: FocusOverlay.focusColor,
         stroke: FocusOverlay.innerFocusColor,
-        center: modelViewTransform.modelToViewPosition( shellCenter )
+        center: modelViewTransform.modelToViewPosition( shellCenter ),
+        visible: false
       } );
       // TODO is the focus highlight disposing the old circle before setting this new one?
       self.centerOption.focusHighlight = newFocusHighlightCircle;
@@ -281,7 +283,7 @@ define( function( require ) {
         stroke: FocusOverlay.innerFocusColor,
         lineWidth: 3,
         fill: null,
-        visible: true,
+        visible: false,
         center: dashCenter
       } );
 
@@ -289,6 +291,7 @@ define( function( require ) {
         fill: FocusOverlay.focusColor,
         stroke: FocusOverlay.focusColor,
         center: dashCenter,
+        visible: false,
 
         // a11y
         tagName: 'div',
@@ -431,7 +434,8 @@ define( function( require ) {
     options = _.extend( {
       glazeColor: FocusOverlay.innerFocusColor,
       doughColor: FocusOverlay.focusColor,
-      innerWidth: 9 // width of the dough, the circle in between the dashed lines
+      innerWidth: 9, // width of the dough, the circle in between the dashed lines
+      visible: false
     } );
 
     Node.call( this, options );
